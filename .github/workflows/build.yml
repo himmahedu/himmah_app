@@ -15,16 +15,42 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - name: Remove old android folder
-        run: rm -rf android
-      - name: Create Android project properly
-        run: flutter create -t app --platforms android .
-      - name: Fix AndroidManifest minSdkVersion
-        run: find . -name "AndroidManifest.xml" -exec sed -i 's/minSdkVersion 21/minSdkVersion 23/g' {} \;
+      - run: rm -rf android
+      - run: flutter create -t app --platforms android .
+      - name: Fix minSdkVersion in AndroidManifest
+        run: |
+          rm -f android/app/src/main/AndroidManifest.xml
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.example.himmah_app">
+              <application
+                  android:label="همة"
+                  android:name="${applicationName}"
+                  android:icon="@mipmap/ic_launcher">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:taskAffinity=""
+                      android:theme="@style/LaunchTheme"
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                      android:hardwareAccelerated="true"
+                      android:windowSoftInputMode="adjustResize">
+                      <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <meta-data android:name="flutterEmbedding" android:value="2" />
+              </application>
+              <uses-permission android:name="android.permission.INTERNET"/>
+          </manifest>
+          EOF
       - name: Fix compileSdkVersion
         run: |
-          find . -name "build.gradle" -exec sed -i 's/compileSdkVersion 34/compileSdkVersion 35/g' {} \;
-          find . -name "build.gradle.kts" -exec sed -i 's/compileSdk = 34/compileSdk = 35/g' {} \;
+          sed -i 's/compileSdkVersion 34/compileSdkVersion 35/g' android/app/build.gradle
+          sed -i 's/compileSdk = 34/compileSdk = 35/g' android/app/build.gradle.kts 2>/dev/null || true
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
