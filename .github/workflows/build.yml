@@ -16,12 +16,14 @@ jobs:
         with:
           flutter-version: '3.22.0'
       - run: flutter create --platforms android .
-      - name: Fix compileSdk and AGP
+      - name: Find and fix Gradle files
         run: |
-          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/' android/app/build.gradle.kts
-          sed -i 's/compileSdkVersion 34/compileSdkVersion 35/' android/app/build.gradle 2>/dev/null || true
-          sed -i "s/com.android.tools.build:gradle:7.3.0/com.android.tools.build:gradle:8.6.0/" android/build.gradle.kts
-          sed -i "s/com.android.tools.build:gradle:7.3.0/com.android.tools.build:gradle:8.6.0/" android/build.gradle 2>/dev/null || true
+          find . -name "build.gradle.kts" -o -name "build.gradle" | while read f; do
+            echo "Processing $f"
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/' "$f" 2>/dev/null || true
+            sed -i 's/compileSdkVersion 34/compileSdkVersion 35/' "$f" 2>/dev/null || true
+            sed -i 's/com.android.tools.build:gradle:7.3.0/com.android.tools.build:gradle:8.6.0/' "$f" 2>/dev/null || true
+          done
       - run: cp google-services.json android/app/ || true
       - run: flutter pub get
       - run: flutter build apk --release
