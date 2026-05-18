@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:himmah_app/models/lecture.dart';
 import 'package:himmah_app/models/course.dart';
 import 'package:himmah_app/screens/chat_page.dart';
@@ -18,7 +17,6 @@ class LectureDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // صف يحتوي على اسم المحاضرة وزر Meet
           Row(
             children: [
               Expanded(
@@ -51,7 +49,6 @@ class LectureDetailPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          // زر الفيديو
           ElevatedButton.icon(
             icon: const Icon(Icons.play_circle_fill, size: 30),
             label: const Text('تشغيل الفيديو', style: TextStyle(fontSize: 18)),
@@ -79,12 +76,7 @@ class LectureDetailPage extends StatelessWidget {
             ),
             onPressed: () {
               if (lecture.pdfUrl.isNotEmpty) {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => Scaffold(
-                    appBar: AppBar(title: const Text('ملف PDF')),
-                    body: PDFView(filePath: lecture.pdfUrl),
-                  ),
-                ));
+                launchUrl(Uri.parse(lecture.pdfUrl), mode: LaunchMode.externalApplication);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('لا يوجد ملف PDF بعد')),
