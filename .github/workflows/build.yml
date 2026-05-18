@@ -15,10 +15,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
-      - run: flutter create --platforms android .
+      - name: Remove old android folder
+        run: rm -rf android
+      - name: Create Android project properly
+        run: flutter create -t app --platforms android .
       - name: Fix AndroidManifest minSdkVersion
-        run: |
-          find . -name "AndroidManifest.xml" -exec sed -i 's/minSdkVersion 21/minSdkVersion 23/g' {} \;
+        run: find . -name "AndroidManifest.xml" -exec sed -i 's/minSdkVersion 21/minSdkVersion 23/g' {} \;
       - name: Fix compileSdkVersion
         run: |
           find . -name "build.gradle" -exec sed -i 's/compileSdkVersion 34/compileSdkVersion 35/g' {} \;
